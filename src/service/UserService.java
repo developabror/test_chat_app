@@ -5,12 +5,12 @@ import entity.Message;
 import entity.User;
 import utils.Context;
 
-import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
 import static service.AuthService.getUserByEmail;
-import static utils.Utill.*;
+import static utils.Utill.getInt;
+import static utils.Utill.getString;
 
 
 public class UserService {
@@ -61,16 +61,39 @@ public class UserService {
                         System.out.println("you have not messages with this user");
                         break;
                     }
-                    for (Message temp : messageByUser) {
-                        if (temp.getFromId().equals(user.getId())){
-                            temp.setHasRead(true);
-                            System.out.println(temp.getText());
-                        }else {
-                            System.out.println("\t\t\t\t"+temp.getText()+" "+(temp.getHasRead()? "✅":"☑️"));
-                        }
+                    printMessage(messageByUser,false);
+                    editMessage(messageByUser);
 
-                    }
                 }
+            }
+        }
+    }
+
+    private void editMessage(List<Message> messageByUser) {
+        while (true){
+            switch (getInt("""
+                    0 exit
+                    1 edit
+                    2 delete
+                    """)){
+                case 0->{
+                    return;
+                }
+                case 1->{
+                    printMessage(messageByUser,true);
+                    System.out.println("enter id to edit");
+                }
+            }
+        }
+    }
+
+    public void printMessage(List<Message> messageList, boolean hasId){
+        for (Message temp : messageList) {
+            if (temp.getToId().equals(Context.getUser().getId())){
+                temp.setHasRead(true);
+                System.out.println(temp.getText());
+            }else {
+                System.out.println("\t\t\t\t"+temp.getText()+" "+(temp.getHasRead()? "✅":"☑️")+(hasId?temp.getId():""));
             }
         }
     }
