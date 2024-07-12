@@ -5,13 +5,17 @@ import entity.Message;
 import entity.User;
 import utils.Context;
 
+import java.util.Currency;
+import java.util.List;
 import java.util.Optional;
 
+import static service.AuthService.getUserByEmail;
 import static utils.Utill.*;
 
 
 public class UserService {
     Database database =Database.getInstance();
+    MessagingService messagingService = MessagingService.getInstance();
     public void service() {
         while (true) {
             String message = """
@@ -39,23 +43,44 @@ public class UserService {
                     newMessage.setText(text);
                     newMessage.setFromId(Context.getUser().getId());
                     newMessage.setToId(user.getId());
+                    database.messages.add(newMessage);
                 }
-                case 2->{
+                case 2-> {
                     for (String contact : Context.getUser().getContacts()) {
                         System.out.println(contact);
                     }
-                    String string = getString("open chat with..?");
+                    String email = getString("open chat with..?");
+                    Optional<User> optionalUser = getUserByEmail(email);
+                    if (optionalUser.isEmpty()) {
+                        System.out.println("user not found");
+                        break;
+                    }
+                    User user = optionalUser.get();
+                    List<Message> messageByUser = messagingService.getMessageByUser(Context.getUser().getId(), user.getId());
+                    if (messageByUser == null || messageByUser.isEmpty()) {
+                        System.out.println("you have not messages with this user");
+                        break;
+                    }
+                    for (Message temp : messageByUser) {
+                        if (temp.getFromId().equals(user.getId())){
+                            temp.setHasRead(true);
+                            System.out.println(temp.getText());
+                        }else {
+                            System.out.println("\t\t\t\t"+temp.getText()+" "+(temp.getHasRead()? "✅":"☑️"));
+                        }
+
+                    }
                 }
             }
         }
     }
 
-    public Optional<User> getUserByEmail(String email) {
-        for (User user : database.users) {
-            if (user.getEmail().equals(email) && user.getActive()){
-                return Optional.of(user);
-            }
+    private static UserService userService;
+    public static UserService getInstance(){
+        if (userService == null) {
+            userService = new UserService();
         }
-        return Optional.empty();
+        return userService;
     }
+
 }

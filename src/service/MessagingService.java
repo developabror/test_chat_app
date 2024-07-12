@@ -26,4 +26,13 @@ public class MessagingService {
         }
         return resp;
     }
+
+    private static MessagingService messagingService;
+    public static MessagingService getInstance(){
+        if (messagingService == null) {
+            messagingService = new MessagingService();
+        }
+        return messagingService;
+    }
+
 }

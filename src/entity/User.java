@@ -10,7 +10,7 @@ public class User {
     private String name;
     private String email;
     private String password;
-    private Boolean active;
+    private Boolean active = true;
     private Set<String> contacts;
     public User() {
         contacts = new HashSet<>();
